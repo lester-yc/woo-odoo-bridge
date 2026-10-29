@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Base de datos y datos locales de Odoo/Bridge
+data/bridge.db
+data/*
+!data/.gitkeep
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs y temporales
+*.log
+.DS_Store
+
+.env
+.env.*
+!.env.example
+config/odoo.conf
+*.sql
+*.dump
+*.backup
+*.bak

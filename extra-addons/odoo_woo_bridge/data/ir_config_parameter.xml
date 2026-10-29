@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        IMPORTANTE: ajusta estos valores en Ajustes > Técnico > Parámetros > Parámetros del sistema
+        (con el modo desarrollador activado), o edítalos aquí antes de instalar el módulo.
+
+        woo_bridge.url   -> la URL del microservicio vista DESDE DENTRO de la red de Docker,
+                             es decir el nombre del servicio, no localhost/host.docker.internal.
+        woo_bridge.token -> debe coincidir EXACTO con ODOO_BRIDGE_TOKEN en el .env del microservicio.
+    -->
+    <record id="woo_bridge_url_param" model="ir.config_parameter">
+        <field name="key">woo_bridge.url</field>
+        <field name="value">http://microservicio:8000</field>
+    </record>
+    <record id="woo_bridge_token_param" model="ir.config_parameter">
+        <field name="key">woo_bridge.token</field>
+        <field name="value">93kgdakh13f9eS4p2etFhqYv6KEOaFGHz4IFYCblmR0j7mEEOv5rtyLzjgU1lUmt</field>
+    </record>
+</odoo>

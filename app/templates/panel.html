@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Middleware Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f4f6f9; }
+        .sidebar { background-color: #2b4162; min-height: 100vh; color: white; padding-top: 20px; }
+        .sidebar .nav-link { color: #a9b5c7; padding: 12px 20px; border-radius: 0; font-weight: 500; cursor: pointer; text-align: left;}
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #3b5998; color: white; }
+        .panel-title { color: #2b4162; font-weight: bold; }
+        .card-custom { border-width: 0; border-radius: 8px; text-align: center; padding: 25px; }
+        .card-success { background-color: #e6f4ea; border-left: 5px solid #34a853; color: #1e8e3e; }
+        .card-info { background-color: #e8f0fe; border-left: 5px solid #4285f4; color: #1a73e8; }
+        .card-warning { background-color: #fef7e0; border-left: 5px solid #fbbc04; color: #b08d00; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; margin-bottom: 0; line-height: 1; }
+        .stat-label { font-size: 0.95rem; font-weight: 500; margin-top: 5px; color: #5f6368;}
+        .btn-primary-custom { background-color: #2b4162; border-color: #2b4162; }
+        .btn-primary-custom:hover { background-color: #1a273b; }
+        .table-custom th { width: 30%; background-color: #f8f9fa; color: #2b4162; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar (Navegación por Pestañas) -->
+            <div class="col-md-2 sidebar d-flex flex-column">
+                <h4 class="text-center mb-4 text-white fw-bold">Middleware<br>Panel</h4>
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active" id="tab-dashboard" data-bs-toggle="pill" data-bs-target="#pane-dashboard" type="button" role="tab">Dashboard / Reportes</button>
+                    <button class="nav-link" id="tab-config" data-bs-toggle="pill" data-bs-target="#pane-config" type="button" role="tab">Configuración</button>
+                    <button class="nav-link" id="tab-credenciales" data-bs-toggle="pill" data-bs-target="#pane-credenciales" type="button" role="tab">Credenciales</button>
+                    <button class="nav-link" id="tab-logs" data-bs-toggle="pill" data-bs-target="#pane-logs" type="button" role="tab">Bitácora (Logs)</button>
+                </div>
+                <!-- Botón de Cerrar Sesión pegado abajo -->
+                <div class="mt-auto p-3">
+                    <a href="/logout" class="btn btn-outline-danger w-100 fw-bold border-2">Cerrar Sesión</a>
+                </div>
+            </div>
+
+            <!-- Contenido Principal -->
+            <div class="col-md-10 p-5 bg-white">
+                <div class="tab-content" id="v-pills-tabContent">
+                    
+                    <!-- PANE: DASHBOARD / REPORTES -->
+                    <div class="tab-pane fade show active" id="pane-dashboard" role="tabpanel">
+                        <h2 class="panel-title mb-1">Dashboard de Sincronización</h2>
+                        <p class="text-muted mb-4">Métricas reales basadas en tu base de datos de mapeo (SQLite).</p>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card card-custom card-success shadow-sm">
+                                    <p class="stat-number">{{ total_syncs }}</p>
+                                    <p class="stat-label">Total Entidades<br>Sincronizadas</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-custom card-info shadow-sm">
+                                    <p class="stat-number">{{ clientes_sync }}</p>
+                                    <p class="stat-label">Clientes<br>Enlazados</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-custom card-warning shadow-sm">
+                                    <p class="stat-number">{{ pedidos_sync }}</p>
+                                    <p class="stat-label">Pedidos<br>Procesados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PANE: CONFIGURACIÓN -->
+                    <div class="tab-pane fade" id="pane-config" role="tabpanel">
+                        <h2 class="panel-title mb-1">Configuración del Puente</h2>
+                        <p class="text-muted mb-4">Ajustes generales de operación.</p>
+                        <div class="card p-4 border shadow-sm">
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Modo de sincronización</label><br>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="syncMode" checked>
+                                        <label class="form-check-label">Tiempo real (Webhooks)</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="syncMode" disabled>
+                                        <label class="form-check-label text-muted">Por lotes (Próximamente)</label>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-primary-custom text-white px-4">Guardar cambios</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- PANE: CREDENCIALES -->
+                    <div class="tab-pane fade" id="pane-credenciales" role="tabpanel">
+                        <h2 class="panel-title mb-1">Credenciales y Conexiones</h2>
+                        
+                        <div class="card border shadow-sm p-0 overflow-hidden">
+                            <table class="table table-hover table-custom mb-0">
+                                <tbody>
+                                    {% for key, value in credenciales.items() %}
+                                    <tr>
+                                        <th class="ps-4 py-3 align-middle">{{ key }}</th>
+                                        <td class="py-3 align-middle text-secondary font-monospace">{{ value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- PANE: LOGS -->
+                    <div class="tab-pane fade" id="pane-logs" role="tabpanel">
+                        <h2 class="panel-title mb-1">Bitácora del Sistema</h2>
+                        <p class="text-muted mb-4">Estado de los servicios (Docker Logs).</p>
+                        <div class="alert alert-secondary border">
+                            <h5 class="alert-heading">Visualización en Terminal</h5>
+                            <p class="mb-0">Para visualizar los logs en tiempo real y trazar la sincronización, ejecuta en tu servidor:</p>
+                            <code class="d-block mt-2 bg-dark text-white p-2 rounded">docker compose logs -f woo_odoo_worker</code>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Bootstrap necesario para las pestañas -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

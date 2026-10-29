@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  basedatos19:
+    image: postgres:16-alpine
+    container_name: odoo19_postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+    volumes:
+      - odoo19_db_data:/var/lib/postgresql/data
+    networks:
+      - odoo19_net
+
+  odoo-19:
+    image: odoo:19.0
+    container_name: odoo19_web
+    depends_on:
+      - basedatos19
+    ports:
+      - "8019:8069"  # Acceso en: http://localhost:8019
+    volumes:
+      - ./config:/etc/odoo
+      - ./extra-addons:/mnt/extra-addons
+      - odoo19_filestore:/var/lib/odoo
+    environment:
+      - HOST=basedatos19
+      - USER=odoo
+      - PASSWORD=odoo
+    networks:
+      - odoo19_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: woo_odoo_redis
+    networks:
+      - odoo19_net
+
+  microservicio:
+    build: .
+    container_name: woo_odoo_bridge
+    depends_on:
+      - odoo-19
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./data:/srv/data      # persiste el sqlite de mapeo fuera del contenedor
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # permite llegar al WordPress del host
+    ports:
+      - "8080:8000"           # Acceso en: http://localhost:8080 (8080 es un puerto que WordPress permite por defecto para webhooks salientes)
+    networks:
+      - odoo19_net
+
+  worker:
+    build: .
+    container_name: woo_odoo_worker
+    command: ["python", "-m", "app.tasks.worker"]
+    depends_on:
+      - odoo-19
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - ./data:/srv/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - odoo19_net
+
+volumes:
+  odoo19_db_data:
+  odoo19_filestore:
+
+networks:
+  odoo19_net:
+    driver: bridge
